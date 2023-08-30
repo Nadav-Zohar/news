@@ -1,12 +1,11 @@
 import './News.css';
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import Talkbacks from '../components/Talkbacks';
 
 export default function NewsPage() {
     const [article, setArticle] = useState();
     const {id} =useParams();
-
-    console.log(useParams());
 
     useEffect(() => {
         fetch(`https://api.shipap.co.il/articles/${id}?token=204f16e2-44e7-11ee-ba96-14dda9d4a5f0`)
@@ -17,18 +16,21 @@ export default function NewsPage() {
     }, []);
 
     return (
-        <div className='NewsPage'>
-            {
-                article ?
-                <div className='article'>
-                    <Link to={'/'}>Go Back</Link>
-                    <h3>{article.headline}</h3>
-                    <p>{article.description}</p>
-                    <img src={article.imgUrl} width="100%" alt='article img' />
-                    <p>{article.content}</p>
-                </div> :
-                <p className='article'>טוען...</p>
-            }
-        </div>
+        <>
+            <div className='NewsPage'>
+                {
+                    article ?
+                    <div className='article'>
+                        <Link to={'/'}>Go Back</Link>
+                        <h3>{article.headline}</h3>
+                        <p>{article.description}</p>
+                        <img src={article.imgUrl} width="100%" alt='article img' />
+                        <p>{article.content}</p>
+                    </div> :
+                    <p className='article'>טוען...</p>
+                }
+            </div>
+            <Talkbacks />
+        </>
     )
 }

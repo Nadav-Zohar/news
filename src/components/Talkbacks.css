@@ -1,0 +1,38 @@
+.talkbacks-Container{
+    width: 90%;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+.talkbacks-text-area form{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+textarea{
+    width: 600px;
+    height: 100px;
+    resize: none;
+    border-radius: 10px;
+    background-color: #ffffff; 
+    opacity: 0.9; 
+    padding: 10px;
+}
+
+.talkback-flex{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+}
+.talkbacks-text-area form button {
+    margin: 0;
+    color: initial;
+    display: inline;
+    padding: 5px 8px;
+    border-radius: 5px;
+    width: initial;
+    cursor: pointer;
+    transition: 0.3s;
+}
