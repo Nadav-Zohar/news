@@ -1,79 +1,66 @@
-import { useContext, useEffect, useState } from "react";
-import "./Talkbacks.css";
-import { GeneralContext } from "../App";
-import { useParams } from "react-router-dom";
+import React, {useEffect, useState } from 'react';
+import moment from 'moment';
+import './Talkbacks.css';
+import TalkbacksForm from './TalkbacksForm';
 
-export default function Talkbacks(){
-    const [talkBacks, setTalkBacks]= useState([]);
-    const {snackbar, setIsLoader}= useContext(GeneralContext);
-    const {id}= useParams();
-    const [sendTalkback, setSendTalkback]= useState(
-        {
-            articleId: `${id}`,
-            parent: 0,
-            name: "",
-            comment: ""
-        }
-    );
+export const GeneralContext2 = React.createContext();
+
+export default function Talkbacks({ articleId, children, level }) {
+    const [talkbacks, setTalkbacks] = useState([]);
     
+
     useEffect(() => {
-        fetch(`https://api.shipap.co.il/articles/${id}/talkbacks?token=204f16e2-44e7-11ee-ba96-14dda9d4a5f0`)
-        .then(res => res.json())
-        .then(data => {
-            setTalkBacks(data);
-        });
-    }, [talkBacks]);
+        if (children) {
+            setTalkbacks(children);
+        } else {
+            fetch(`https://api.shipap.co.il/articles/${articleId}/talkbacks?token=204f16e2-44e7-11ee-ba96-14dda9d4a5f0`)
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(t => {
+                    t.children = data.filter(c => c.parent === t.id);
+                });
+    
+                setTalkbacks(data.filter(c => c.parent === 0));
+            });
+        }
+    }, []);
 
-    const inputChange = ev => {
-        const { name, value } = ev.target;
-
-        setSendTalkback({
-            ...sendTalkback,
-            [name]: value,
-        });
+    const commentToggle = t => {
+        t.isShowComment = !t.isShowComment;
+        setTalkbacks([...talkbacks]);
     }
 
-    const postTalkback = ev => {
-        ev.preventDefault();
+    return (
+        <GeneralContext2.Provider value={{talkbacks, setTalkbacks}}>
+        <div className='Talkbacks'>
+            {!children && <h3>Comments</h3>}
+            {!children && <TalkbacksForm articleId={articleId} />}
+            {
+                talkbacks.map((t, i) =>
+                    <div key={t.id} style={{ paddingLeft: (level || 0) * 20 }}>
+                        <div className='talkbackContainer'>
+                            <div className='grid'>
+                                <div>
+                                    <div className='circle' style={{backgroundColor: 'hsl('+ t.id * 40 +' 48% 47%)'}}>
+                                        {t.name.slice(0,1)}
+                                    </div>
+                                </div>
 
-        fetch(`https://api.shipap.co.il/articles/${id}/talkbacks?token=204f16e2-44e7-11ee-ba96-14dda9d4a5f0`, {
-            method: 'POST',
-            headers: {'Content-type': 'application/json'},
-            body: JSON.stringify(sendTalkback),
-        })
-        .then(res => res.json())
-        .then(data => {
+                                <div>{t.name} <i>({moment(t.time).format('DD/MM/Y H:mm')})</i></div>
+                                <div className='btnFrame'>
+                                    <button style={{backgroundColor: 'hsl('+ t.id * 40 +' 48% 47%)'}} onClick={() => commentToggle(t)}>comment</button>
+                                </div>
+                                <div className='content'>{t.comment}</div>
+                            </div>
 
-        });
-
-    }
-
-    return(
-        <>
-        <div className="talkback-flex">
-            <div className="talkbacks-Container">
-                {
-                    talkBacks.map((t, i) => 
-                        <div key={i + 1}>
-                            <h3>{t.name}</h3>
-                            <p>{t.comment}</p>
+                            {t.isShowComment && <TalkbacksForm articleId={articleId} parentId={t.id} />}
                         </div>
-                    )
-                }
-            </div>
-            <div className="talkbacks-text-area">
-                <form onSubmit={postTalkback}>
-                    <label>
-                        Your Name :
-                        <input type="text" name="name" value={sendTalkback.name} onChange={inputChange}/>
-                    </label>
-                    <label>
-                        <textarea type="text" name="comment" value={sendTalkback.comment} onChange={inputChange}/>
-                    </label>
-                    <button type="submit">Add Comment</button>
-                </form>
-            </div>
+
+                        {t.children?.length ? <Talkbacks articleId={articleId} children={t.children} level={(level || 0) + 1} /> : ''}
+                    </div>
+                )
+            }
         </div>
-        </>
+        </GeneralContext2.Provider>
     )
 }

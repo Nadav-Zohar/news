@@ -26,11 +26,11 @@ export default function NewsPage() {
                         <p>{article.description}</p>
                         <img src={article.imgUrl} width="100%" alt='article img' />
                         <p>{article.content}</p>
+                        <Talkbacks articleId={id} />
                     </div> :
                     <p className='article'>טוען...</p>
                 }
             </div>
-            <Talkbacks />
         </>
     )
 }
