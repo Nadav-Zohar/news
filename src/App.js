@@ -1,6 +1,5 @@
 import './App.css';
 import React, { useState } from 'react';
-import News from './news/News';
 import Router from './Router';
 
 
@@ -17,7 +16,7 @@ function App() {
     }
     
   return (
-    <GeneralContext.Provider value={{setIsLoader, snackbar}}>
+    <GeneralContext.Provider value={{isLoader ,setIsLoader, snackbar, snackbarText}}>
       <Router />
     </GeneralContext.Provider>
   );

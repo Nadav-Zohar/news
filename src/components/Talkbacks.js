@@ -1,13 +1,10 @@
-import React, {useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import moment from 'moment';
 import './Talkbacks.css';
 import TalkbacksForm from './TalkbacksForm';
 
-export const GeneralContext2 = React.createContext();
-
 export default function Talkbacks({ articleId, children, level }) {
     const [talkbacks, setTalkbacks] = useState([]);
-    
 
     useEffect(() => {
         if (children) {
@@ -30,14 +27,19 @@ export default function Talkbacks({ articleId, children, level }) {
         setTalkbacks([...talkbacks]);
     }
 
+    function addChild(item, parent) {
+        parent.children.unshift(item);
+        parent.isShowComment = false;
+        setTalkbacks([...talkbacks]);
+    }
+
     return (
-        <GeneralContext2.Provider value={{talkbacks, setTalkbacks}}>
         <div className='Talkbacks'>
             {!children && <h3>Comments</h3>}
-            {!children && <TalkbacksForm articleId={articleId} />}
+            {!children && <TalkbacksForm articleId={articleId} added={item => setTalkbacks([item, ...talkbacks])} />}
             {
                 talkbacks.map((t, i) =>
-                    <div key={t.id} style={{ paddingLeft: (level || 0) * 20 }}>
+                    <div key={t.id} style={{ paddingLeft: level ? 20 : 0 }}>
                         <div className='talkbackContainer'>
                             <div className='grid'>
                                 <div>
@@ -53,7 +55,7 @@ export default function Talkbacks({ articleId, children, level }) {
                                 <div className='content'>{t.comment}</div>
                             </div>
 
-                            {t.isShowComment && <TalkbacksForm articleId={articleId} parentId={t.id} />}
+                            {t.isShowComment && <TalkbacksForm articleId={articleId} parentId={t.id} added={item => addChild(item, t)} />}
                         </div>
 
                         {t.children?.length ? <Talkbacks articleId={articleId} children={t.children} level={(level || 0) + 1} /> : ''}
@@ -61,6 +63,5 @@ export default function Talkbacks({ articleId, children, level }) {
                 )
             }
         </div>
-        </GeneralContext2.Provider>
     )
 }

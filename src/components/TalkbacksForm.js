@@ -1,15 +1,13 @@
 import React, { useContext, useState } from 'react';
 import { GeneralContext } from '../App';
-import { GeneralContext2 } from './Talkbacks';
 
-export default function TalkbacksForm({ articleId, parentId }) {
+export default function TalkbacksForm({ articleId, added, parentId }) {
     const [formData, setFormData] = useState({
         name: '',
         comment: '',
     });
 
     const { snackbar, setIsLoader } = useContext(GeneralContext);
-    const {talkbacks, setTalkbacks}= useContext(GeneralContext2);
 
     function addComment(ev) {
         ev.preventDefault();
@@ -26,14 +24,15 @@ export default function TalkbacksForm({ articleId, parentId }) {
         })
         .then(res => res.json())
         .then(data => {
+            data.children = [];
+            added(data);
             setIsLoader(false);
-            snackbar("talkback added");
-            
+            snackbar("comment added");
+
             setFormData({
                 name: '',
                 comment: '',
             });
-            setTalkbacks([...talkbacks, data]);
         });
     }
 
@@ -51,7 +50,7 @@ export default function TalkbacksForm({ articleId, parentId }) {
             <form onSubmit={addComment}>
                 <input type="text" name="name" placeholder='full name' value={formData.name} onChange={handelInput} required />
                 <textarea name="comment" placeholder='comment' cols="30" rows="10" required value={formData.comment} onChange={handelInput}></textarea>
-                <button>send</button>
+                <button>Send Comment</button>
             </form>
         </div>
     )
